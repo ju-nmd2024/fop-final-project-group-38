@@ -6,11 +6,18 @@ let playerRadius = 15; //used late for detecting collision
 
 let walls = []; //array for all the walls
 
+noStroke();
+
 function setup() 
 {
   createCanvas(600, 480);
 
-  walls.push({ x: 100, y: 0, w: 200, h: 120 });
+  //walls created in the "walls" array
+  walls.push({ x: -300, y: -180, w: 400, h: 50 }); 
+  walls.push({ x: 180, y: -180, w: 100, h: 50 });
+  walls.push({ x: -300, y: 120, w: 600, h: 50 });
+  walls.push({ x: -300, y: -160, w: 80, h: 300 }); 
+  walls.push({ x: 220, y: -180, w: 80, h: 330 });
 }
 
 function player()
@@ -22,7 +29,7 @@ function player()
 function drawMap(x, y)
 {
   fill (50);
-  for (let wall of walls)
+  for (let wall of walls) //makes a rect for each wall declared
   {
     rect(x + wall.x, y + wall.y, wall.w, wall.h);
   }
@@ -47,7 +54,7 @@ function draw()
   //allows the player to move if theres no collision
   if (!isColliding(moveX, moveY)) {
     mapX += moveX;
-    mapY += moveY;
+    mapY += moveY; 
   }
 
 
