@@ -160,7 +160,7 @@ function draw()
 window.draw = draw;
 let img;
 function preload() {
-  img = loadImage('/assets/PagePiskel.png');
+  img = loadImage('./assets/PagePiskel.png');
 }
 window.preload = preload;
 
