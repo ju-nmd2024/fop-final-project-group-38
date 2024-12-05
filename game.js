@@ -12,11 +12,95 @@ let monsterY = -900;
 let gameState = "menu"; //determines whether the player is in the menu or playing
 let result = "winner"; //"winner" or "loser" depending on if the player won or lost
 
+let monsterObj;
+let plaperObj;
 noStroke();
+
+class player
+{
+  constructor(x, y, radius) 
+  {
+    this.x = x;
+    this.y = y;
+    this.radius = radius;
+  }
+
+  draw(){
+    fill(0);
+    ellipse(this.x, this.y, this.radius * 2, this.radius * 2);
+  }
+}
+
+class monster
+{
+  constructor(x, y, monsterX, monsterY)
+  {
+    this.x = x;
+    this.y = y;
+    this.monsterX = monsterX;
+    this.monsterY = monsterY;
+  }
+
+  draw()
+  {
+    let monsterScreenX = this.monsterX + mapX;
+    let monsterScreenY = this.monsterY + mapY;
+
+    fill("red");
+    ellipse(monsterScreenX, monsterScreenY, 20, 20);
+  }
+
+  monsterChase() {
+    //convert monster's map position to screen position
+    let monsterScreenX = this.monsterX + mapX;
+    let monsterScreenY = this.monsterY + mapY;
+  
+    //the player's fixed screen position
+    let playerX = 300;
+    let playerY = 240;
+  
+    //monster moves toward player position
+    if (monsterScreenX < playerX) {
+      this.monsterX += 2; //move monster right toward the player
+    } else if (monsterScreenX > playerX) { 
+      this.monsterX -= 2; //move monster left toward the player
+    }
+  
+    if (monsterScreenY < playerY) {
+      this.monsterY += 2; //move monster down toward the player
+    } else if (monsterScreenY > playerY) {
+      this.monsterY -= 2; //move monster up toward the player
+    }
+  }
+
+  checkMonsterCollision() {
+    //convert monster's map position to screen position
+    let monsterScreenX = this.monsterX + mapX;
+    let monsterScreenY = this.monsterY + mapY;
+  
+    //player's fixed screen position
+    let playerX = 300;
+    let playerY = 240;
+  
+    //calculate the distance between monster and player
+    let distance = dist(monsterScreenX, monsterScreenY, playerX, playerY);
+  
+    //check if distance is less than the sum of the radii (15 is the player's radius, 10 is the monster's radius)
+    if (distance < 15 + 10) {
+      result = "loser";
+      gameState = "gameover"; //stop the game or handle losing state
+    }
+  }
+  
+}
+
 
 function setup()
 {
   createCanvas(600, 480);
+
+  playerObj = new player(300, 240, 15);
+  monsterObj = new monster(mapX, mapY, monsterX, monsterY);
 
   //walls created in the "walls" array
   walls.push({ x: -300, y: -180, w: 400, h: 50 }); 
@@ -55,45 +139,6 @@ function setup()
   pages.push({ x: -560, y: -450});
 
 }
-
-function player()
-{
-  fill(0);
-  ellipse(300, 240, playerRadius * 2, playerRadius * 2);
-}
-
-function drawMonster(x, y, monsterX, monsterY){
-  push();
-  translate(x, y);
-
-  fill("red");
-  ellipse(monsterX, monsterY, 20, 20);
-  pop();
-}
-
-function monsterChase() {
-  //convert monster's map position to screen position
-  let monsterScreenX = monsterX + mapX;
-  let monsterScreenY = monsterY + mapY;
-
-  //the player's fixed screen position
-  let playerX = 300;
-  let playerY = 240;
-
-  //monster moves toward player position
-  if (monsterScreenX < playerX) {
-    monsterX += 2; //move monster right toward the player
-  } else if (monsterScreenX > playerX) { 
-    monsterX -= 2; //move monster left toward the player
-  }
-
-  if (monsterScreenY < playerY) {
-    monsterY += 2; //move monster down toward the player
-  } else if (monsterScreenY > playerY) {
-    monsterY -= 2; //move monster up toward the player
-  }
-}
-
 
 function draw()
 {
@@ -135,7 +180,21 @@ function drawMenu()
 //the end screen varies between a lose or winscreen depending on the outcome
 function drawEndScreen()
 {
-   background(20);
+  background(20);
+  pagescollected = 0;
+  mapX = 300;
+  mapY = 240;
+  monsterX = 50;
+  monsterY = -900;
+  monsterObj = new monster(mapX, mapY, monsterX, monsterY);
+  pages = [];
+  
+  pages.push({ x: -150, y: 50});
+  pages.push({ x: 200, y: -880});
+  pages.push({ x: 0, y: -960});
+  pages.push({ x: 560, y: -580});
+  pages.push({ x: -560, y: -450});
+
 
   if (result === "winner")
   {
@@ -192,8 +251,10 @@ function drawGame()
   let moveY = 0;
   
   drawMap(mapX, mapY);
-  player();
-  drawMonster(mapX, mapY, monsterX, monsterY);
+
+  playerObj.draw();
+  monsterObj.draw();
+
   //key input for movement
   if (keyIsDown(87)) moveY += 4; //"W" key moves the map up
   if (keyIsDown(65)) moveX += 4; //"A" key moves the map left
@@ -211,8 +272,8 @@ function drawGame()
 
   //activates after the 2nd page is collected
   if (pagescollected >= 2) {
-    monsterChase(); //monster is chasing
-    checkMonsterCollision(); //monster collision with player
+    monsterObj.monsterChase(); //monster is chasing
+    monsterObj.checkMonsterCollision(); //monster collision with player
   }
   if(pagescollected === 5)
   {
@@ -224,8 +285,6 @@ function drawGame()
   fill(0);
   text(pagescollected + " / 5", 10, 10, 500);
 }
-
-
 
 //function to check collision with all walls whenever the player moves
 function isColliding(moveX, moveY) {
@@ -275,27 +334,6 @@ function checkPageCollision() {
     }
   }
 }
-
-function checkMonsterCollision() {
-  //convert monster's map position to screen position
-  let monsterScreenX = monsterX + mapX;
-  let monsterScreenY = monsterY + mapY;
-
-  //player's fixed screen position
-  let playerX = 300;
-  let playerY = 240;
-
-  //calculate the distance between monster and player
-  let distance = dist(monsterScreenX, monsterScreenY, playerX, playerY);
-
-  //check if distance is less than the sum of the radii (15 is the player's radius, 10 is the monster's radius)
-  if (distance < 15 + 10) {
-    result = "loser";
-    gameState = "gameover"; //stop the game or handle losing state
-  }
-}
-
-
 //function for leaving main menu using the space key
 function keyPressed() 
 {
