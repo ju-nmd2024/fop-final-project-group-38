@@ -157,28 +157,23 @@ function draw()
   }
 }
 
+
 window.draw = draw;
+
+function preload() {
+  img = loadImage('/assets/PagePiskel.png');
+}
 
 function drawMenu()
 {
-  background(40);
-
-  fill(300);
-  rect(180, 70, 250, 360);
-
-  fill(250, 50, 50);
-  textSize(45);
-  text("The Pages", 195, 150);
-
-  textSize(20);
-  text("Press [SPACE] to play", 210, 300);
-
-  fill(300, 10, 10);
-  ellipse(0, 0, 250);
-  ellipse(600, 500, 200);
+  
+  background(40,0,0);
+ 
+  image(img, 40, 1,500,450);
 
   
 }
+
 
 //the end screen varies between a lose or winscreen depending on the outcome
 function drawEndScreen()
