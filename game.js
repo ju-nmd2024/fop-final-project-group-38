@@ -13,7 +13,7 @@ let gameState = "menu"; //determines whether the player is in the menu or playin
 let result = "winner"; //"winner" or "loser" depending on if the player won or lost
 
 let monsterObj;
-let plaperObj;
+let playerObj;
 
 class player
 {
