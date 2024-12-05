@@ -14,7 +14,6 @@ let result = "winner"; //"winner" or "loser" depending on if the player won or l
 
 let monsterObj;
 let plaperObj;
-noStroke();
 
 class player
 {
