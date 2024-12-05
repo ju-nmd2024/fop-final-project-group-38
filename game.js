@@ -139,6 +139,7 @@ function setup()
   pages.push({ x: -560, y: -450});
 
 }
+window.setup = setup;
 
 function draw()
 {
@@ -155,6 +156,8 @@ function draw()
     drawEndScreen();
   }
 }
+
+window.draw = draw;
 
 function drawMenu()
 {
@@ -349,3 +352,5 @@ function keyPressed()
       }
   }
 }
+
+window.keyPressed = keyPressed;
