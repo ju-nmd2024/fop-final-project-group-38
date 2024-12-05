@@ -7,8 +7,10 @@ let playerRadius = 15; //used late for detecting collision
 let walls = []; //array for all the walls
 let pages = []; //array for the pages (objects to collect)
 let pagescollected = 0; //keeps track of how many pages are collected
-
+let monsterX = 50;
+let monsterY = -900;
 let gameState = "menu"; //determines whether the player is in the menu or playing
+let result = "winner"; //"winner" or "loser" depending on if the player won or lost
 
 noStroke();
 
@@ -60,6 +62,39 @@ function player()
   ellipse(300, 240, playerRadius * 2, playerRadius * 2);
 }
 
+function drawMonster(x, y, monsterX, monsterY){
+  push();
+  translate(x, y);
+
+  fill("red");
+  ellipse(monsterX, monsterY, 20, 20);
+  pop();
+}
+
+function monsterChase() {
+  //convert monster's map position to screen position
+  let monsterScreenX = monsterX + mapX;
+  let monsterScreenY = monsterY + mapY;
+
+  //the player's fixed screen position
+  let playerX = 300;
+  let playerY = 240;
+
+  //monster moves toward player position
+  if (monsterScreenX < playerX) {
+    monsterX += 2; //move monster right toward the player
+  } else if (monsterScreenX > playerX) { 
+    monsterX -= 2; //move monster left toward the player
+  }
+
+  if (monsterScreenY < playerY) {
+    monsterY += 2; //move monster down toward the player
+  } else if (monsterScreenY > playerY) {
+    monsterY -= 2; //move monster up toward the player
+  }
+}
+
+
 function draw()
 {
   if (gameState === "menu")
@@ -72,7 +107,7 @@ function draw()
   }
   else if (gameState === "gameover")
   {
-
+    drawEndScreen();
   }
 }
 
@@ -97,6 +132,39 @@ function drawMenu()
   
 }
 
+//the end screen varies between a lose or winscreen depending on the outcome
+function drawEndScreen()
+{
+   background(20);
+
+  if (result === "winner")
+  {
+    textSize(52);
+    fill("red");
+    text("You Escaped", 100, 200);
+    textSize(20);
+    fill(200);
+    text("[SPACE]   Play Again", 110, 300);
+    textSize(20);
+    fill(100);
+    text("[1]   Main Menu", 110, 340);
+  }
+  else if (result === "loser")
+  {
+    textSize(40);
+    fill("red");
+    text("You Were Caught!", 100, 200);
+    textSize(20);
+    fill(200);
+    text("[SPACE]   Play Again", 110, 300);
+    textSize(20);
+    fill(100);
+    text("[1]   Main Menu", 110, 340);
+  }
+
+}
+
+//draws map based on x and y offset so player is always in the middle of the screen
 function drawMap(x, y)
 { 
   push();
@@ -115,6 +183,7 @@ function drawMap(x, y)
   pop();
 }
 
+//function for the game logic
 function drawGame()
 {
   background(100);
@@ -124,7 +193,7 @@ function drawGame()
   
   drawMap(mapX, mapY);
   player();
-
+  drawMonster(mapX, mapY, monsterX, monsterY);
   //key input for movement
   if (keyIsDown(87)) moveY += 4; //"W" key moves the map up
   if (keyIsDown(65)) moveX += 4; //"A" key moves the map left
@@ -140,15 +209,23 @@ function drawGame()
   //allows the player to pick up the pages on the ground
   checkPageCollision(); 
 
+  //activates after the 2nd page is collected
+  if (pagescollected >= 2) {
+    monsterChase(); //monster is chasing
+    checkMonsterCollision(); //monster collision with player
+  }
   if(pagescollected === 5)
   {
-    console.log("YOU WON"); 
+    result = "winner";
+    gameState = "gameover";
   }
 
   textSize(30);
   fill(0);
   text(pagescollected + " / 5", 10, 10, 500);
 }
+
+
 
 //function to check collision with all walls whenever the player moves
 function isColliding(moveX, moveY) {
@@ -199,14 +276,38 @@ function checkPageCollision() {
   }
 }
 
+function checkMonsterCollision() {
+  //convert monster's map position to screen position
+  let monsterScreenX = monsterX + mapX;
+  let monsterScreenY = monsterY + mapY;
+
+  //player's fixed screen position
+  let playerX = 300;
+  let playerY = 240;
+
+  //calculate the distance between monster and player
+  let distance = dist(monsterScreenX, monsterScreenY, playerX, playerY);
+
+  //check if distance is less than the sum of the radii (15 is the player's radius, 10 is the monster's radius)
+  if (distance < 15 + 10) {
+    result = "loser";
+    gameState = "gameover"; //stop the game or handle losing state
+  }
+}
+
+
 //function for leaving main menu using the space key
 function keyPressed() 
 {
-  if(gameState === "menu")
+  if(gameState === "menu" || gameState === "gameover")
   {
     if(key === " ")
     {
       gameState = "running";
     }
+    else if(key === "1")
+      {
+        gameState = "menu";
+      }
   }
 }
